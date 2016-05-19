@@ -1,0 +1,31 @@
+*{
+	margin: 0; padding: 0; box-sizing: border-box;
+}
+
+html, body{
+	background: #e7e7e7;
+	width: 100%; height: 100%;
+	overflow: hidden;
+}
+
+.progress-outer{
+	margin: 4px 0; height: 24px; width: 30%; border: 1px solid black;
+	border-radius: 3px; box-shadow: inset 0 0px 6px -2px black;
+	margin-bottom: 1em;
+}
+
+.progress-inner{
+	height: 100%; margin: 0 0;
+	border-right: 1px solid transparent;
+	margin-right: -1px;
+
+	background: silver;
+	border-right-color: #000;
+	box-shadow: inset 0 3px 6px -2px white, 0 -1px 3px grey;
+}
+
+canvas{
+	border: 1px dotted silver;
+	display: block;
+	width: 100%; height: 100%;
+}
