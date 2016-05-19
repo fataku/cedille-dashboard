@@ -1,7 +1,8 @@
 $(function($){
 	'use strict';
 
-	var arcDivisions = 90;
+	var arcDivisions = 30;
+	//var arcColors = ['red', 'green', 'blue'];
 
 	var Animator = function(canvas){
 		this.drawables = [];
@@ -29,7 +30,7 @@ $(function($){
 			this.skipped = 0;
 		}else this.skipped++;
 
-		this.timer = window.setTimeout(this.update.bind(this), 16);
+		//this.timer = window.setTimeout(this.update.bind(this), 16);
 	};
 	Animator.prototype.start = function () {
 		if(!this.timer)
@@ -64,24 +65,27 @@ $(function($){
 		var subslice = slice / arcDivisions;
 		for(var i = 0, ii = this.slices.length; i<ii; i++){
 			c.beginPath();
-
-			for(var j = 0, jj = arcDivisions; j<jj; j++){
+			var offset = {
+				x: Math.cos(Math.PI*2/this.slices.length*(i+0.5)) * 2,
+				y: Math.sin(Math.PI*2/this.slices.length*(i+0.5)) * 2
+			}
+			for(var j = 0, jj = arcDivisions; j<=jj; j++){
 				c.lineTo(
-					center.x + Math.cos(slice * i + subslice * j) * innerRadius,
-					center.y + Math.sin(slice * i + subslice * j) * innerRadius
+					center.x + offset.x + Math.cos(slice * i + subslice * j) * innerRadius,
+					center.y + offset.y + Math.sin(slice * i + subslice * j) * innerRadius
 				)
 			}
-			for(var j = 0, jj = arcDivisions; j<jj; j++){
+			for(var j = 0, jj = arcDivisions; j<=jj; j++){
 				c.lineTo(
-					center.x + Math.cos(slice * i + subslice * (arcDivisions-j)) * outerRadius,
-					center.y + Math.sin(slice * i + subslice * (arcDivisions-j)) * outerRadius
+					center.x + offset.x + Math.cos(slice * i + subslice * (arcDivisions-j)) * outerRadius,
+					center.y + offset.y + Math.sin(slice * i + subslice * (arcDivisions-j)) * outerRadius
 				)
 			}
-			c.fillStyle = "red";
-			c.strokeStyle = "red";
+			c.fillStyle = 'hsla('+ 360 / this.slices.length * i +', 75%, 50%, 0.5)';
+			c.strokeStyle = 'hsla('+ 360 / this.slices.length * i +', 100%, 25%, 1)';
+			c.closePath();
 			c.fill();
 			c.stroke();
-			c.closePath()
 		}//*/
 	};
 	PiegressChart.prototype.update = function (title, percentage, color) {
@@ -96,6 +100,8 @@ $(function($){
 
 	a.drawables.push(p);
 	a.start();
+
+	$(window).on('resize', a.update.bind(a));
 });
 
 angular.module('CedilleDashboard', []).controller('DashboardCtrl', function ($scope) {
