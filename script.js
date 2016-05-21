@@ -3,6 +3,9 @@ $(function($){
 
 	var arcDivisions = 30;
 	var pivot = 3;
+	var logo = new Image();
+		logo.src = 'Cedille.png';
+
 	//var arcColors = ['red', 'green', 'blue'];
 
 	/** Basic Animator class, takes drawables and gives them a canvas to draw on
@@ -58,10 +61,10 @@ $(function($){
 		this.totalPortions += portion;
 	};
 	PiegressChart.prototype.draw = function (c, elem) {
-		console.log(this.totalPortion);
-		var baseRadius = Math.min(window.innerWidth, window.innerHeight);
-		var innerRadius = this.innerRadius/200 * baseRadius;
-		var outerRadius = this.outerRadius/200 * baseRadius;
+
+		var baseRadius = Math.min(window.innerWidth, window.innerHeight) - 30;
+		var innerRadius = (this.innerRadius/200 * baseRadius) * 0.8;
+		var outerRadius = (this.outerRadius/200 * baseRadius) * 0.8;
 
 		var center = {
 			x:elem.width/2,
@@ -100,6 +103,18 @@ $(function($){
 		c.strokeStyle = "white";
 		c.stroke();
 
+		var oldMode = c.globalCompositeOperation;
+		var ratio = (logo.height / logo.width);
+		var scaledLogo = {
+			x: center.x - innerRadius * 0.6,
+			y: center.y - innerRadius * 0.6 * ratio,
+			w: 2 * innerRadius * 0.6,
+			h: 2 * innerRadius * 0.6 * ratio,
+		};
+
+		c.globalCompositeOperation = "multiply";
+		c.drawImage(logo, scaledLogo.x, scaledLogo.y, scaledLogo.w, scaledLogo.h);
+		c.globalCompositeOperation = oldMode;
 		/**
 		* For each slice of data, draw a wedge. Its radial width represents the percentage of commits associated with it,
 		* its inner (more colored) wedge represents the progress done on it (issues completed vs issues total)
@@ -195,8 +210,19 @@ $(function($){
 		// c.moveTo(center.x + outerRadius, center.y);
 		// c.arc(center.x, center.y, outerRadius, 0, Math.PI*2);
 		// c.stroke();
+
+		/*c.font = '40pt sans-serif';
+		c.strokeStyle = c.fillStyle = "#333";
+		c.shadowColor = '#666';
+		c.shadowBlur = 3;
+		c.shadowOffsetX = 1;
+		c.shadowOffsetY = 2;
+		c.textAlign = 'center';
+		c.fillText('Çedille', center.x, 60);//*/
+
+
 	};
-	PiegressChart.prototype.update = function (title, percentage, color) {
+	PiegressChart.prototype.update = function () {
 
 	};
 
