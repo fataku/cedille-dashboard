@@ -1,0 +1,28 @@
+{
+  "name": "cedille-dashboard",
+  "version": "0.0.1",
+  "description": "An overview dashboard for displaying an organization's repo progress",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "express": "^4.13.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fataku/cedille-dashboard.git"
+  },
+  "keywords": [
+    "dashboard",
+    "git-api"
+  ],
+  "author": "Dmitri Kolytchev",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fataku/cedille-dashboard/issues"
+  },
+  "homepage": "https://github.com/fataku/cedille-dashboard#readme"
+}

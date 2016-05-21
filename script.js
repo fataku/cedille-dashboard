@@ -66,16 +66,16 @@ $(function($){
 		var innerRadius = (this.innerRadius/200 * baseRadius) * 0.8;
 		var outerRadius = (this.outerRadius/200 * baseRadius) * 0.8;
 
+		var slice = Math.PI * 2 / this.totalPortions;
+		var subslice = slice / arcDivisions;
+		var portionsToDate = 0;
+
 		var center = {
 			x:elem.width/2,
 			y:elem.height/2
 		};
 
 		c.moveTo(center.x, center.y);
-
-		var slice = Math.PI * 2 / this.totalPortions;
-		var subslice = slice / arcDivisions;
-		var portionsToDate = 0;
 
 		// draw a background dropshadow for aesthetics
 		c.shadowOffsetY = 6;
@@ -189,7 +189,8 @@ $(function($){
   			c.moveTo(center.x + offset.x * d2,
 	  				 center.y + offset.y * d2)
 			c.lineTo(center.x + offset.x * d * 1.3,
-				     center.y + offset.y * d * 1.3)
+				     center.y + offset.y * d * 1.3);
+
 			c.closePath();
 			c.strokeStyle = c.fillStyle = "#248";
 			c.stroke();
