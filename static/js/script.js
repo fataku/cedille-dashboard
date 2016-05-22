@@ -42,7 +42,7 @@ $(function($){
 				}
 			}
 			if(data.length || !config.skip_empty_issues)
-				pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log10(repo.size+10));
+				pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log(repo.size + Math.E));
 			next(null, repo.id);
 		}).fail(function(jqXHR, status, err){
 			next(err, repo.id);

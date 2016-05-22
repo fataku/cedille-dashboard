@@ -64,14 +64,23 @@ PiegressChart.prototype.draw = function (c, elem) {
 	c.fillStyle = $('body').css('background-color');
 	c.fill();
 
+	c.beginPath();
+	c.moveTo(center.x + innerRadius + pivot - 6, center.y);
+	c.arc(center.x, center.y, innerRadius + pivot - 6, 0, Math.PI*2);
+	c.strokeStyle = "white";
+	c.stroke();
+	c.shadowBlur = outerRadius * 0.15;
+	c.stroke();
+
 	c.moveTo(center.x + innerRadius, center.y);
 	c.arc(center.x, center.y, innerRadius + pivot - 6, 0, Math.PI*2);
-	c.shadowBlur = c.shadowOffsetX = c.shadowOffsetY = 0;
 
 	c.beginPath();
 	c.arc(center.x, center.y, outerRadius + pivot + 7.5, 0, Math.PI*2);
 	c.strokeStyle = "white";
 	c.stroke();
+	c.stroke();
+	c.shadowBlur = c.shadowOffsetX = c.shadowOffsetY = 0;
 
 	var oldMode = c.globalCompositeOperation;
 	var ratio = (this.logo.height / this.logo.width);
@@ -97,6 +106,9 @@ PiegressChart.prototype.draw = function (c, elem) {
 			x: Math.cos(offsetAngle) * pivot,
 			y: Math.sin(offsetAngle) * pivot,
 		}
+
+		oldMode = c.globalCompositeOperation;
+		c.globalCompositeOperation = "multiply";
 
 		var fromAngle = adj + slice * portionsToDate;
 		var toAngle = adj + slice * sliceData.portion + slice * portionsToDate;
@@ -133,7 +145,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.fill();
 		c.stroke();
 
-
+		sliceData.assigned = Math.max(sliceData.assigned, Math.min(0.03, 1.03 - sliceData.percentage));
 		if(sliceData.assigned > 0){
 			c.beginPath();
 			c.arc(center.x + offset.x, center.y + offset.y, innerRadius, fromAngle, toAngle);
@@ -151,7 +163,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 			c.stroke();
 		}
 
-		c.shadowOffsetX = c.shadowOffsetY = c.shadowBlur = 0;
+		c.globalCompositeOperation = oldMode
 
 		c.beginPath();
 		var d = 1 / pivot * outerRadius / 1.1;
@@ -165,6 +177,10 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.lineTo(center.x + offset.x * d * 1.3,
 			     center.y + offset.y * d * 1.3);
 
+		c.shadowBlur =
+		c.shadowOffsetX =
+		c.shadowOffsetY = 0;
+
 		c.closePath();
 		c.strokeStyle = c.fillStyle = "#248";
 		c.stroke();
@@ -177,7 +193,8 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.fillText(sliceData.title, center.x + offset.x * d * 1.3 + offset.x / pivot * 12, center.y + offset.y * d * 1.3 + offset.y / pivot * 12);
 
 
-		if(sliceData.percentage && sliceData.percentage < 1){
+		if(false){
+		// if(sliceData.percentage){
 			c.font = this.innerFont;
 			c.shadowColor = '#fff';
 			c.fillStyle = 'white';
