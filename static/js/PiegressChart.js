@@ -1,5 +1,3 @@
-var arcDivisions = 30;
-var pivot = 3;
 
 var PiegressChart = function(){
 	this.logo = new Image();
@@ -8,28 +6,39 @@ var PiegressChart = function(){
 	this.innerRadius = 20;
 	this.outerRadius = 80;
 	this.totalPortions = 0;
+	this.pivot = 3;
+	this.rotationAdjustment = -3/16 * Math.PI * 2;
+	this.font = 'normal 16pt open sans';
+	this.innerFont = '14pt open sans';
+	window.slices = this.slices;
 };
 
 PiegressChart.prototype.addSlice = function (id, title, completion, assigned, portion) {
 	this.slices.push({
 		id:			id,
-		title: 		(title||"[Untitled]") + " (" + (completion*100).toPrecision(3) + "% )",
+		title: 		(title||"[Untitled]"),
 		portion: 	portion,
 		assigned:	assigned,
 		percentage: completion
 	});
-	this.totalPortions += portion;
+	this.recalculatePortions();
 };
-
+PiegressChart.prototype.recalculatePortions = function () {
+	this.totalPortions = 0;
+	for(var i = 0, ii = this.slices.length; i<ii; i++){
+		this.totalPortions += this.slices[i].portion;
+	}
+};
 PiegressChart.prototype.draw = function (c, elem) {
-
+	this.recalculatePortions();
+	var pivot = this.pivot;
+	var adj = this.rotationAdjustment;
 	var baseRadius = Math.min(window.innerWidth, window.innerHeight) - 30;
 	var innerRadius = (this.innerRadius/200 * baseRadius) * 0.8;
 	var outerRadius = (this.outerRadius/200 * baseRadius) * 0.8;
 
 	var slice = Math.PI * 2 / this.totalPortions;
-	var subslice = slice / arcDivisions;
-	var portionsToDate = -this.totalPortions/16*3;
+	var portionsToDate = 0;
 
 	var center = {
 		x:elem.width/2,
@@ -83,24 +92,19 @@ PiegressChart.prototype.draw = function (c, elem) {
 	for(var i = 0, ii = this.slices.length; i<ii; i++){
 		var sliceData = this.slices[i];
 		var color = 360 / this.slices.length * i;
+		var offsetAngle = adj + (portionsToDate + sliceData.portion*0.5)/this.totalPortions * Math.PI*2;
 		var offset = {
-			x: Math.cos((portionsToDate + sliceData.portion*0.5)/this.totalPortions * Math.PI*2) * pivot,
-			y: Math.sin((portionsToDate + sliceData.portion*0.5)/this.totalPortions * Math.PI*2) * pivot,
+			x: Math.cos(offsetAngle) * pivot,
+			y: Math.sin(offsetAngle) * pivot,
 		}
 
+		var fromAngle = adj + slice * portionsToDate;
+		var toAngle = adj + slice * sliceData.portion + slice * portionsToDate;
+
 		c.beginPath();
-		for(var j = 0, jj = arcDivisions; j<=jj; j++){ // draw the small inner arc
-			c.lineTo(
-				center.x + offset.x + Math.cos(subslice * j * sliceData.portion + slice * portionsToDate) * innerRadius,
-				center.y + offset.y + Math.sin(subslice * j * sliceData.portion + slice * portionsToDate) * innerRadius
-			)
-		}
-		for(var j = 0, jj = arcDivisions; j<=jj; j++){ // draw the big inner arc
-			c.lineTo(
-				center.x + offset.x + Math.cos(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * outerRadius,
-				center.y + offset.y + Math.sin(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * outerRadius
-			)
-		}
+		c.arc(center.x + offset.x, center.y + offset.y, innerRadius, fromAngle, toAngle);
+		c.arc(center.x + offset.x, center.y + offset.y, outerRadius, toAngle, fromAngle, true);
+
 		c.fillStyle = 'hsla('+ color +', 100%, 75%, 0.3)';
 		c.strokeStyle = 'hsla('+ color +', 10%, 25%, 0.3)';
 
@@ -114,18 +118,9 @@ PiegressChart.prototype.draw = function (c, elem) {
 
 
 		c.beginPath();
-		for(var j = 0, jj = arcDivisions; j<=jj; j++){ // draw the inner arc of the filling slice, the one that represents completion
-			c.lineTo(
-				center.x + offset.x + Math.cos(subslice * j * sliceData.portion + slice * portionsToDate) * innerRadius,
-				center.y + offset.y + Math.sin(subslice * j * sliceData.portion + slice * portionsToDate) * innerRadius
-			)
-		}
-		for(var j = 0, jj = arcDivisions; j<=jj; j++){ // outer arc, with some math gymnastics to make it stay inside its borders
-			c.lineTo(
-				center.x + offset.x + Math.cos(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * sliceData.percentage + innerRadius),
-				center.y + offset.y + Math.sin(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * sliceData.percentage + innerRadius)
-			)
-		}
+		c.arc(center.x + offset.x, center.y + offset.y, innerRadius, fromAngle, toAngle);
+		c.arc(center.x + offset.x, center.y + offset.y, (outerRadius - innerRadius) * sliceData.percentage + innerRadius, toAngle, fromAngle, true);
+
 		c.fillStyle = 'hsla('+ color +', 80%, 50%, 0.5)';
 		c.shadowColor = 'hsla('+color+', 100%, 50%, 0.99)';
 		c.strokeStyle = 'hsla('+ color +', 50%, 50%, 0.5)';
@@ -141,18 +136,8 @@ PiegressChart.prototype.draw = function (c, elem) {
 
 		if(sliceData.assigned > 0){
 			c.beginPath();
-			for(var j = 0, jj = arcDivisions; j<=jj; j++){ // draw the inner arc of the filling slice, the one that represents completion
-				c.lineTo(
-					center.x + offset.x + Math.cos(subslice * (j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * sliceData.percentage + innerRadius),
-					center.y + offset.y + Math.sin(subslice * (j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * sliceData.percentage + innerRadius)
-				)
-			}
-			for(var j = 0, jj = arcDivisions; j<=jj; j++){ // outer arc, with some math gymnastics to make it stay inside its borders
-				c.lineTo(
-					center.x + offset.x + Math.cos(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * (sliceData.percentage + sliceData.assigned) + innerRadius),
-					center.y + offset.y + Math.sin(subslice * (arcDivisions-j) * sliceData.portion + slice * portionsToDate) * ((outerRadius - innerRadius) * (sliceData.percentage + sliceData.assigned) + innerRadius)
-				)
-			}
+			c.arc(center.x + offset.x, center.y + offset.y, innerRadius, fromAngle, toAngle);
+			c.arc(center.x + offset.x, center.y + offset.y, (outerRadius - innerRadius) * (sliceData.percentage + sliceData.assigned) + innerRadius, toAngle, fromAngle, true);
 			c.fillStyle = 'hsla('+ color +', 80%, 100%, 0.5)';
 			c.shadowColor = 'hsla('+color+', 100%, 50%, 0.99)';
 			c.strokeStyle = 'hsla('+ color +', 50%, 50%, 0.5)';
@@ -166,9 +151,6 @@ PiegressChart.prototype.draw = function (c, elem) {
 			c.stroke();
 		}
 
-
-
-
 		c.shadowOffsetX = c.shadowOffsetY = c.shadowBlur = 0;
 
 		c.beginPath();
@@ -178,7 +160,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 			  center.y + offset.y * d,
 			  3, -Math.PI, Math.PI);
 
-			c.moveTo(center.x + offset.x * d2,
+		c.moveTo(center.x + offset.x * d2,
   				 center.y + offset.y * d2)
 		c.lineTo(center.x + offset.x * d * 1.3,
 			     center.y + offset.y * d * 1.3);
@@ -186,7 +168,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.closePath();
 		c.strokeStyle = c.fillStyle = "#248";
 		c.stroke();
-		c.font = '20pt sans-serif';
+		c.font = this.font;
 		c.shadowColor = '#666';
 		c.shadowBlur = 3;
 		c.shadowOffsetX = 1;
@@ -194,6 +176,18 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.textAlign = (offset.x > 0)?'left':'right';
 		c.fillText(sliceData.title, center.x + offset.x * d * 1.3 + offset.x / pivot * 12, center.y + offset.y * d * 1.3 + offset.y / pivot * 12);
 
+
+		if(sliceData.percentage && sliceData.percentage < 1){
+			c.font = this.innerFont;
+			c.shadowColor = '#fff';
+			c.fillStyle = 'white';
+			c.textAlign = 'center';
+			c.shadowOffsetX = 0;
+			c.shadowOffsetY = -1;
+			c.fillText(Math.floor(sliceData.percentage*100) + '%',
+						center.x + offset.x / pivot * (innerRadius + (outerRadius - innerRadius) * 0.37),
+						center.y + offset.y / pivot * (innerRadius + (outerRadius - innerRadius) * 0.37));
+		}
 		c.shadowBlur =
 		c.shadowOffsetX =
 		c.shadowOffsetY = 0;
@@ -209,7 +203,8 @@ PiegressChart.prototype.update = function () {
 PiegressChart.prototype.sort = function (attr, desc) {
 	var dir = desc?1:-1;
 	this.slices.sort(function(a, b){
-		if(a[attr] == b[attr]) return 0;
+		if(a[attr] == b[attr]) return a.id>b.id?1:-1;
 		return a[attr] > b[attr] ? dir : -dir;
 	});
+	console.log(this.slices);
 };

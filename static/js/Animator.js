@@ -9,7 +9,7 @@ var Animator = function(canvas){
 	this.context = canvas.getContext('2d');
 	this.skipped = 0;
 	this.onALeTemps = true;
-	this.fps = 1;
+	this.fps = 3;
 };
 Animator.prototype.draw = function(){
 
