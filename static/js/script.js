@@ -41,7 +41,7 @@ $(function($){
 					case "assigned" : assigned++; break;
 				}
 			}
-			if(data.length || !config.skip_empty_issues)
+			if((data.length || !config.skip_empty_issues) && (!config.skip_complete || closed != data.length))
 				pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log(repo.size + Math.E));
 			next(null, repo.id);
 		}).fail(function(jqXHR, status, err){

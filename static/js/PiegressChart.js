@@ -7,7 +7,7 @@ var PiegressChart = function(){
 	this.outerRadius = 80;
 	this.totalPortions = 0;
 	this.pivot = 3;
-	this.rotationAdjustment = -3/16 * Math.PI * 2;
+	this.rotationAdjustment = -2/16 * Math.PI * 2;
 	this.font = 'normal 16pt open sans';
 	this.innerFont = '14pt open sans';
 	window.slices = this.slices;
@@ -193,7 +193,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 		c.fillText(sliceData.title, center.x + offset.x * d * 1.3 + offset.x / pivot * 12, center.y + offset.y * d * 1.3 + offset.y / pivot * 12);
 
 
-		if(false){
+		if(true){
 		// if(sliceData.percentage){
 			c.font = this.innerFont;
 			c.shadowColor = '#fff';

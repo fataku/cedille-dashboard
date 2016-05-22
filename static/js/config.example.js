@@ -9,4 +9,5 @@ window.config = {
 	"token": "[TOKEN]",
 	"skip_empty_issues": true, // if true, will skip repos with 0 issues
 	"skip_empty_repos": true, // if true, will skip repos which report size 0
+	"skip_complete": true, // if true, will skip repos which have all issues closed.
 }
