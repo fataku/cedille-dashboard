@@ -10,8 +10,9 @@ var PiegressChart = function(){
 	this.totalPortions = 0;
 };
 
-PiegressChart.prototype.addSlice = function (title, completion, assigned, portion) {
+PiegressChart.prototype.addSlice = function (id, title, completion, assigned, portion) {
 	this.slices.push({
+		id:			id,
 		title: 		(title||"[Untitled]") + " (" + (completion*100).toPrecision(3) + "% )",
 		portion: 	portion,
 		assigned:	assigned,
@@ -28,7 +29,7 @@ PiegressChart.prototype.draw = function (c, elem) {
 
 	var slice = Math.PI * 2 / this.totalPortions;
 	var subslice = slice / arcDivisions;
-	var portionsToDate = 0;
+	var portionsToDate = -this.totalPortions/16*3;
 
 	var center = {
 		x:elem.width/2,
@@ -203,4 +204,12 @@ PiegressChart.prototype.draw = function (c, elem) {
 
 PiegressChart.prototype.update = function () {
 
+};
+
+PiegressChart.prototype.sort = function (attr, desc) {
+	var dir = desc?1:-1;
+	this.slices.sort(function(a, b){
+		if(a[attr] == b[attr]) return 0;
+		return a[attr] > b[attr] ? dir : -dir;
+	});
 };
