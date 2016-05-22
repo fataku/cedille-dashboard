@@ -14,7 +14,8 @@ $(function($){
 			).done(function(data){
 				var asyncLoad = [];
 				for(var i in data){ // add all repos to an aync queue and load them in parallel
-					asyncLoad.push(async.apply(getRepoData, data[i], config, p));
+					if(data[i].size > 0 || !config.skip_empty_repos) asyncLoad.push(async.apply(getRepoData, data[i], config, p));
+					console.log(data[i].size, data[i]);
 				}
 				async.parallel(asyncLoad, function(err, res){
 					if(err)
@@ -40,7 +41,8 @@ $(function($){
 					case "assigned" : assigned++; break;
 				}
 			}
-			pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log10(repo.size+10));
+			if(data.length || !config.skip_empty_issues)
+				pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log10(repo.size+10));
 			next(null, repo.id);
 		}).fail(function(jqXHR, status, err){
 			next(err, repo.id);
