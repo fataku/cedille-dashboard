@@ -3,7 +3,7 @@ var PiegressChart = function(){
 	this.logo = new Image();
 	this.logo.src = 'images/Cedille.png';
 	this.slices = [];
-	this.innerRadius = 20;
+	this.innerRadius = 40;
 	this.outerRadius = 80;
 	this.totalPortions = 0;
 	this.pivot = 3;
@@ -48,15 +48,19 @@ PiegressChart.prototype.draw = function (c, elem) {
 	c.moveTo(center.x, center.y);
 
 	// draw a background dropshadow for aesthetics
+	
+	var iw = window.innerWidth;
+	var ih = window.innerHeight;
+
 	c.shadowOffsetY = 6;
 	c.shadowBlur = outerRadius * 0.05;
 	c.shadowColor = "rgba(0, 0, 0, 0.65)";
-	c.moveTo(window.innerWidth, center.y);
-	c.lineTo(window.innerWidth, 0)
+	c.moveTo(iw, center.y);
+	c.lineTo(iw, 0)
 	c.lineTo(0, 0)
-	c.lineTo(0, window.innerHeight)
-	c.lineTo(window.innerWidth, window.innerHeight)
-	c.lineTo(window.innerWidth, center.y);
+	c.lineTo(0, ih)
+	c.lineTo(iw, ih)
+	c.lineTo(iw, center.y);
 	c.arc(center.x, center.y, outerRadius + pivot + 6, 0, Math.PI*2);
 
 	c.moveTo(center.x + innerRadius, center.y);
@@ -91,8 +95,10 @@ PiegressChart.prototype.draw = function (c, elem) {
 		h: 2 * innerRadius * 0.6 * ratio,
 	};
 
-	c.globalCompositeOperation = "multiply";
+	c.globalCompositeOperation = "ource-out";
+	c.globalAlpha = 0.35;
 	c.drawImage(this.logo, scaledLogo.x, scaledLogo.y, scaledLogo.w, scaledLogo.h);
+	c.globalAlpha = 1;
 	c.globalCompositeOperation = oldMode;
 	/**
 	* For each slice of data, draw a wedge. Its radial width represents the percentage of commits associated with it,

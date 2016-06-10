@@ -3,6 +3,84 @@ $(function($){
 
 	var a = new Animator(document.getElementById("piegress-chart"));
 	var p = new PiegressChart();
+	var t = {
+		x: 0,
+		y: 0,
+		font: "",
+		color: "",
+		format: "",
+		hands: null,
+		ready: false,
+		update: function(){
+			//
+			if(!this.hands){
+				this.hands = new Image();
+				this.hands.onload = function(){
+					this.ready = true;
+				}.bind(this);
+				this.hands.src="images/hands.png";
+			}
+		},draw: function(c){
+			//
+			// draw on cavas: current time.
+			//
+			var d = new Date();
+			var h = Math.floor(window.innerHeight/20);
+
+			c.shadowColor = 'silver';
+			c.shadowOffsetX = 0;
+			c.shadowOffsetY = h*0.05;
+			c.shadowBlur = 3;
+
+			c.font = h + 'px Open Sans';
+			c.fillStyle = '#333';
+			c.textAlign = 'center';
+			c.fillText(d.toLocaleTimeString(), window.innerWidth/2, h + 8);
+
+			var seconds = d.getSeconds() + d.getMilliseconds() / 1000;
+			var minutes = d.getMinutes();
+			var hours = d.getHours();
+
+			if(this.ready){
+				c.save();
+				c.globalCompositeOperation = "multiply";
+				c.translate(window.innerWidth/2, window.innerHeight/2);
+				c.rotate(minutes/30*Math.PI);
+				c.drawImage(this.hands, 0, 188, 80, 459-188, -40, -459+188+19, 80,459-188);
+				c.rotate(-minutes/30*Math.PI + hours/6*Math.PI);
+				c.drawImage(this.hands, 0, 0, 80,188, -40, -188+19, 80, 188);
+				c.rotate(-hours/6*Math.PI + seconds/30*Math.PI);
+				c.moveTo(0, 0);
+				c.lineTo(0, -200);
+				c.strokeStyle = 'silver';
+				c.stroke();
+				c.restore();
+			}
+			/*c.beginPath();
+			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + seconds/30*Math.PI) * 300,
+					window.innerHeight / 2 + Math.sin(-Math.PI/2 + seconds/30*Math.PI) * 300);
+			c.strokeStyle = 'blue';
+			c.stroke();
+
+			c.beginPath();
+			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + minutes/30*Math.PI + seconds/60/30*Math.PI) * 300,
+					window.innerHeight / 2 + Math.sin(-Math.PI/2 + minutes/30*Math.PI + seconds/60/30*Math.PI) * 300);
+			c.strokeStyle = 'blue';
+			c.stroke();
+
+			c.beginPath();
+			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
+			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + hours/6*Math.PI) * 300,
+					window.innerHeight / 2 + Math.sin(-Math.PI/2 + hours/6*Math.PI) * 300);
+			c.strokeStyle = 'red';
+			c.stroke();*/
+
+		}
+	};
+
+	a.fps = 1;
 
 	$(window).on('resize', a.update.bind(a));
 
@@ -22,6 +100,7 @@ $(function($){
 						return console.error(err);
 					p.sort('portion', -1);
 					a.drawables.push(p);
+					a.drawables.push(t);
 					a.start();
 				});
 				// async documentation : https://github.com/caolan/async
