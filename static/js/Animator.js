@@ -3,13 +3,13 @@
   *modified for Cedille use because we don't need constant drawing.
   */
 
-var Animator = function(canvas){
+var Animator = function(canvas, fps){
 	this.drawables = [];
 	this.canvas = canvas;
 	this.context = canvas.getContext('2d');
 	this.skipped = 0;
 	this.onALeTemps = true;
-	this.fps = 3;
+	this.fps = fps || 3;
 };
 Animator.prototype.draw = function(){
 

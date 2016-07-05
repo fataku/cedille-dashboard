@@ -3,6 +3,7 @@ var PiegressChart = function(){
 	this.logo = new Image();
 	this.logo.src = 'images/Cedille.png';
 	this.slices = [];
+	this.pointers = {};
 	this.innerRadius = 40;
 	this.outerRadius = 80;
 	this.totalPortions = 0;
@@ -14,15 +15,28 @@ var PiegressChart = function(){
 };
 
 PiegressChart.prototype.addSlice = function (id, title, completion, assigned, portion) {
-	this.slices.push({
+	var slice = {
 		id:			id,
 		title: 		(title||"[Untitled]"),
 		portion: 	portion,
 		assigned:	assigned,
 		percentage: completion
-	});
+	};
+	this.slices.push(slice);
+	this.pointers[id] = slice;
 	this.recalculatePortions();
 };
+PiegressChart.prototype.updateSlice = function (id, completion, assigned, portion){
+	var slice = this.pointers[id];
+	if(!slice) {
+		throw "Piegresschart->updateSlice() :: Invalid Slice Id";
+		return;
+	}
+	slice.portion = portion;
+	slice.assigned = assigned;
+	slice.percentage = completion;
+	this.recalculatePortions();
+}
 PiegressChart.prototype.recalculatePortions = function () {
 	this.totalPortions = 0;
 	for(var i = 0, ii = this.slices.length; i<ii; i++){

@@ -1,9 +1,11 @@
 $(function($){
 	'use strict';
 
-	var a = new Animator(document.getElementById("piegress-chart"));
-	var p = new PiegressChart();
-	var t = {
+	var a, p, t, loop;
+
+	a = new Animator(document.getElementById("piegress-chart"), 2);
+	p = new PiegressChart();
+	t = {
 		x: 0,
 		y: 0,
 		font: "",
@@ -38,51 +40,30 @@ $(function($){
 			c.fillText(d.toLocaleTimeString(), window.innerWidth/2, h + 8);
 
 			var seconds = d.getSeconds() + d.getMilliseconds() / 1000;
-			var minutes = d.getMinutes();
-			var hours = d.getHours();
+			var minutes = d.getMinutes() + seconds / 60;
+			var hours = d.getHours() + minutes / 60;
 
 			if(this.ready){
 				c.save();
 				c.globalCompositeOperation = "multiply";
 				c.translate(window.innerWidth/2, window.innerHeight/2);
-				c.rotate(minutes/30*Math.PI);
-				c.drawImage(this.hands, 0, 188, 80, 459-188, -40, -459+188+19, 80,459-188);
-				c.rotate(-minutes/30*Math.PI + hours/6*Math.PI);
+
+				c.rotate(hours/6*Math.PI);
 				c.drawImage(this.hands, 0, 0, 80,188, -40, -188+19, 80, 188);
-				c.rotate(-hours/6*Math.PI + seconds/30*Math.PI);
-				c.moveTo(0, 0);
+				
+				c.rotate(-hours/6*Math.PI + minutes/30*Math.PI);
+				c.drawImage(this.hands, 0, 188, 80, 459-188, -40, -459+188+19, 80,459-188);
+				
+				c.rotate(-minutes/30*Math.PI + seconds/30*Math.PI);
+				c.moveTo(0, -8);
 				c.lineTo(0, -200);
+				
 				c.strokeStyle = 'silver';
 				c.stroke();
 				c.restore();
 			}
-			/*c.beginPath();
-			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
-			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + seconds/30*Math.PI) * 300,
-					window.innerHeight / 2 + Math.sin(-Math.PI/2 + seconds/30*Math.PI) * 300);
-			c.strokeStyle = 'blue';
-			c.stroke();
-
-			c.beginPath();
-			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
-			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + minutes/30*Math.PI + seconds/60/30*Math.PI) * 300,
-					window.innerHeight / 2 + Math.sin(-Math.PI/2 + minutes/30*Math.PI + seconds/60/30*Math.PI) * 300);
-			c.strokeStyle = 'blue';
-			c.stroke();
-
-			c.beginPath();
-			c.moveTo(window.innerWidth / 2, window.innerHeight / 2);
-			c.lineTo(window.innerWidth / 2 + Math.cos(-Math.PI/2 + hours/6*Math.PI) * 300,
-					window.innerHeight / 2 + Math.sin(-Math.PI/2 + hours/6*Math.PI) * 300);
-			c.strokeStyle = 'red';
-			c.stroke();*/
-
 		}
 	};
-
-	a.fps = 1;
-
-	$(window).on('resize', a.update.bind(a));
 
 	// Normally, we'd GET the config file. for dev purposes, it's included in the HTML <head> because of cross-domain shenanigans.
 	//$.get('config.json', function(config){
@@ -103,6 +84,16 @@ $(function($){
 					a.drawables.push(t);
 					a.start();
 				});
+
+				window.setInterval(function(tasks){
+					//console.log('updating');
+					async.parallel(tasks, function(err, res){
+						if(err)
+							return console.error(err);
+						//console.log('update complete');
+					});
+				}, 5000, asyncLoad);
+
 				// async documentation : https://github.com/caolan/async
 			});
 		else console.error("please make sure config file has an org_url, a user and a token/password");
@@ -120,7 +111,9 @@ $(function($){
 					case "assigned" : assigned++; break;
 				}
 			}
-			if((data.length || !config.skip_empty_issues) && (!config.skip_complete || closed != data.length))
+			if(pie.pointers && pie.pointers[repo.id])
+				pie.updateSlice(repo.id, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log(repo.size + Math.E));
+			else if((data.length || !config.skip_empty_issues) && (!config.skip_complete || closed != data.length))
 				pie.addSlice(repo.id, repo.name, !data.length?0:closed/data.length, !data.length?0:assigned/data.length, Math.log(repo.size + Math.E));
 			next(null, repo.id);
 		}).fail(function(jqXHR, status, err){
