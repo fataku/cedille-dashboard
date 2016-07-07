@@ -4,15 +4,15 @@
   */
 
 var Animator = function(canvas, fps){
-	this.drawables = [];
+	this.drawables  = [];
 	this.canvas = canvas;
 	this.context = canvas.getContext('2d');
 	this.skipped = 0;
 	this.onALeTemps = true;
 	this.fps = fps || 3;
+	this.timer = -1;
 };
 Animator.prototype.draw = function(){
-
 	this.canvas.width = window.innerWidth;
 	this.canvas.height = window.innerHeight;
 
@@ -33,6 +33,10 @@ Animator.prototype.update = function(){
 	this.timer = window.setTimeout(this.update.bind(this), 1000/this.fps);
 };
 Animator.prototype.start = function () {
-	if(!this.timer)
+	if(this.timer === -1)
 		this.update.call(this);
+};
+Animator.prototype.stop = function () {
+	if(this.timer > -1)
+		window.clearTimeout(this.timer);
 };

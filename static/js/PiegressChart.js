@@ -11,6 +11,7 @@ var PiegressChart = function(){
 	this.rotationAdjustment = -2/16 * Math.PI * 2;
 	this.font = 'normal 16pt open sans';
 	this.innerFont = '14pt open sans';
+	this.offset = {x:0, y:0};
 	window.slices = this.slices;
 };
 
@@ -65,6 +66,9 @@ PiegressChart.prototype.draw = function (c, elem) {
 	
 	var iw = window.innerWidth;
 	var ih = window.innerHeight;
+
+	c.translate(this.offset.x, this.offset.y);
+	
 
 	c.shadowOffsetY = 6;
 	c.shadowBlur = outerRadius * 0.05;

@@ -3,7 +3,7 @@ $(function($){
 
 	var a, p, t, loop;
 
-	a = new Animator(document.getElementById("piegress-chart"), 2);
+	a = new Animator(document.getElementById("piegress-chart"), 12);
 	p = new PiegressChart();
 	t = {
 		x: 0,
@@ -92,8 +92,21 @@ $(function($){
 							return console.error(err);
 						//console.log('update complete');
 					});
-				}, 5000, asyncLoad);
-
+				}, 300000, asyncLoad);
+				
+				/*var c = p.offset;
+				window.setInterval(function(pie){
+					var frame = 0;
+					var animation = window.setInterval(function(){
+						p.offset = {
+							x: c.x + frame*frame,
+							y: c.y
+						};
+						frame++;
+						if(frame > 60)
+							window.clearInterval(animation);
+					}, 1000/60);
+				}, 7 * 1000);//*/
 				// async documentation : https://github.com/caolan/async
 			});
 		else console.error("please make sure config file has an org_url, a user and a token/password");
@@ -131,4 +144,8 @@ $(function($){
 			}
 		};
 	}
+	$("body").on('click', 'canvas', function(){
+		// for debug purposes
+		a.stop.call(a);
+	});
 });
