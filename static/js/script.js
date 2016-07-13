@@ -37,7 +37,7 @@ $(function($){
 			c.font = h + 'px Open Sans';
 			c.fillStyle = '#333';
 			c.textAlign = 'center';
-			c.fillText(d.toLocaleTimeString(), window.innerWidth/2, h + 8);
+			c.fillText(d.toLocaleTimeString(config.locale), window.innerWidth/2, h + 8);
 
 			var seconds = d.getSeconds() + d.getMilliseconds() / 1000;
 			var minutes = d.getMinutes() + seconds / 60;
